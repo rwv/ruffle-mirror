@@ -7,10 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-
-  build:
-
+  publish:
     runs-on: ubuntu-latest
-      -
-        name: Check new version and publish
+    steps:
+      - name: Check new version and publish
         run: docker build -t ruffle_mirror . && docker run --rm --env NPM_TOKEN=${{ secrets.NPM_TOKEN }} ruffle_mirror
