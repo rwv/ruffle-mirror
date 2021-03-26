@@ -77,4 +77,4 @@ if __name__ == '__main__':
     releases_not_published.sort(key=lambda release: generate_version(release['tag_name']))
 
     for release in releases_not_published:
-        publish_release(release, dryrun=True)
+        publish_release(release, dryrun=False)
