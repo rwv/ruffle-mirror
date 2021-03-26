@@ -29,8 +29,8 @@ def publish_release(release, dryrun=True):
         print('version error')
         return
 
-    package_config['version'] = tag_name.strip('nightly-').replace('-', '.')
-
+    package_config['version'] = version
+    
     with open(os.path.join(temp_folder_path, 'package.json'), mode='w') as f:
         f.write(json.dumps(package_config))
 
@@ -59,6 +59,7 @@ def get_all_npm_versions():
 def generate_version(tag_name):
     try:
         version = tag_name.strip('nightly-').replace('-', '.')
+        version = '.'.join(map(lambda x: str(int(x)),version.split('.')))
         assert re.match(r'\d{4}\.\d{1,2}\.\d{1,2}', version)
         return version
     except Exception as e:
