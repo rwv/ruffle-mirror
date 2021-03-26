@@ -5,8 +5,10 @@ import os
 import zipfile
 import subprocess
 import re
+import shutil
 
 package_json_template = os.path.abspath('./package.json')
+npmrc_path = os.path.abspath('./npmrc')
 
 def publish_release(release, dryrun=True):
     tag_name = release['tag_name']
@@ -31,6 +33,9 @@ def publish_release(release, dryrun=True):
 
     with open(os.path.join(temp_folder_path, 'package.json'), mode='w') as f:
         f.write(json.dumps(package_config))
+
+    # copy .npmrc file
+    shutil.copy(npmrc_path, os.path.join(temp_folder_path, '.npmrc'))
 
     # downlod asset file and unzip it
     zip_temp_folder = tempfile.TemporaryDirectory()
