@@ -2,8 +2,8 @@ name: Check and Publish
 
 on:
   schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '*/10 * * * *'
+    # ruffle's nightly building is at 0 0 * * *
+    - cron:  '0 2 * * *'
   workflow_dispatch:
 
 jobs:
