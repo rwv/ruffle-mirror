@@ -57,6 +57,7 @@ def generate_version(tag_name):
         assert re.match(r'\d{4}\.\d{1,2}\.\d{1,2}', version)
         return version
     except Exception as e:
+        print(f'Failed to convert {tag_name}\n{e}')
         return tag_name
 
 
