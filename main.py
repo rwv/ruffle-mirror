@@ -8,7 +8,7 @@ import re
 import shutil
 
 package_json_template = os.path.abspath('./package.json')
-npmrc_path = os.path.abspath('./npmrc')
+npmrc_path = os.path.abspath('./.npmrc')
 
 def publish_release(release, dryrun=True):
     tag_name = release['tag_name']
