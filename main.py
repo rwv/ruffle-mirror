@@ -74,5 +74,7 @@ if __name__ == '__main__':
     published_versions = get_all_npm_versions()
     releases_not_published = list(filter(lambda release: generate_version(release['tag_name']) not in published_versions, releases))
 
+    releases_not_published.sort(key=lambda release: generate_version(release['tag_name']))
+
     for release in releases_not_published:
-        publish_release(release, dryrun=False)
+        publish_release(release, dryrun=True)
