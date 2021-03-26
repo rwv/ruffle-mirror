@@ -1,0 +1,15 @@
+{
+  "name": "ruffle-mirror",
+  "version": "1.0.0",
+  "description": "This is an auto npm mirror for ruffle nightly builds.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rwv/ruffle-mirror.git"
+  },
+  "author": "ruffle-rs",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rwv/ruffle-mirror/issues"
+  },
+  "homepage": "https://github.com/rwv/ruffle-mirror#readme"
+}
