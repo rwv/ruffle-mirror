@@ -82,7 +82,7 @@ if __name__ == '__main__':
     releases_not_published.sort(key=lambda release: generate_version(release['tag_name']))
 
     print(f'Found {len(releases_not_published)} releases not published:')
-    print(releases_not_published)
+    print(list(map(lambda x: x['tag_name'], releases_not_published)))
 
     for release in releases_not_published:
         publish_release(release, dryrun=False)
