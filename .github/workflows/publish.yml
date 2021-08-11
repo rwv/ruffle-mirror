@@ -12,5 +12,11 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
+
+      - name: Setup Node env
+        uses: actions/setup-node@v2
+      
       - name: Check new version and publish
-        run: docker build -t ruffle_mirror . && docker run --rm --env NPM_TOKEN=${{ secrets.NPM_TOKEN }} ruffle_mirror
+        run: python3 main.py
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
