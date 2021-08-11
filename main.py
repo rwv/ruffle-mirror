@@ -13,7 +13,11 @@ npmrc_path = os.path.abspath('./.npmrc')
 def publish_release(release, dryrun=True):
     tag_name = release['tag_name']
     print(f'handle release {tag_name}')
-    self_hosted_asset = list(filter(lambda x: 'selfhosted' in x['name'], release['assets']))[0]
+    try:
+        self_hosted_asset = list(filter(lambda x: 'selfhosted' in x['name'], release['assets']))[0]
+    except IndexError:
+        print('Unable to find selfhosted in this release')
+        return
 
     # generate temp dir for publish
     temp_folder = tempfile.TemporaryDirectory()
@@ -76,6 +80,9 @@ if __name__ == '__main__':
     releases_not_published = list(filter(lambda release: generate_version(release['tag_name']) not in published_versions, releases))
 
     releases_not_published.sort(key=lambda release: generate_version(release['tag_name']))
+
+    print(f'Found {len(releases_not_published)} releases not published:')
+    print(releases_not_published)
 
     for release in releases_not_published:
         publish_release(release, dryrun=False)
