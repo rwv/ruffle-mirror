@@ -14,7 +14,7 @@
 
 # Ruffle Mirror
 
-This is an auto npm mirror for [Ruffle](https://ruffle.rs) nightlt builds.
+This is an auto npm mirror for [Ruffle](https://ruffle.rs) nightly builds.
 
 ## NPM Link
 [https://www.npmjs.com/package/ruffle-mirror](https://www.npmjs.com/package/ruffle-mirror)
