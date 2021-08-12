@@ -15,6 +15,8 @@ jobs:
 
       - name: Setup Node env
         uses: actions/setup-node@v2
+        with:
+          registry-url: https://registry.npmjs.org
       
       - name: Check new version and publish
         run: python3 main.py
