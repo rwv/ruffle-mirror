@@ -12,6 +12,10 @@
   <strong><a href="https://ruffle.rs">website</a> | <a href="https://ruffle.rs/demo">demo</a> | <a href="https://github.com/ruffle-rs/ruffle/releases">nightly builds</a> | <a href="https://github.com/ruffle-rs/ruffle/wiki">wiki</a> | <a href="https://www.npmjs.com/package/ruffle-mirror">npm</a></strong>
 </p>
 
+Ruffle now has an official npm package: [@ruffle-rs/ruffle](https://www.npmjs.com/package/@ruffle-rs/ruffle). Use this instead.
+
+This repo will still try best to mirror Ruffle to keep things work.
+
 # Ruffle Mirror
 
 This is an auto npm mirror for [Ruffle](https://ruffle.rs) nightly builds.
