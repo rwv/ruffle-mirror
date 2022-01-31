@@ -49,7 +49,7 @@ def publish_release(ruffle_version, version_to_publish):
 
     # publish to npm
     os.chdir(os.path.join(temp_folder_path, 'package'))
-    subprocess.run(["npm", "publish", "--dry-run"])
+    subprocess.run(["npm", "publish"])
     os.chdir(ROOT_PATH)
 
 def main():
