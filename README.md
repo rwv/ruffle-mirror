@@ -14,7 +14,7 @@
 
 Ruffle now has an official npm package: [@ruffle-rs/ruffle](https://www.npmjs.com/package/@ruffle-rs/ruffle). Use this instead.
 
-This repo will still try best to mirror Ruffle to keep things work.
+This repo will still try best to mirror Ruffle using `2022.1.11` style version tag to keep things work.
 
 # Ruffle Mirror
 
