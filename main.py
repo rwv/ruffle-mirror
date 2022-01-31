@@ -2,83 +2,66 @@ import urllib.request
 import json
 import tempfile
 import os
-import zipfile
 import subprocess
 import re
-import shutil
+import tarfile
 
-package_json_template = os.path.abspath('./package.json')
+PACKAGE_JSON_TEMPLATE = os.path.abspath('./package.json')
+ROOT_PATH = os.path.abspath('.')
 
-def publish_release(release, dryrun=True):
-    tag_name = release['tag_name']
-    print(f'handle release {tag_name}')
-    try:
-        self_hosted_asset = list(filter(lambda x: 'selfhosted' in x['name'], release['assets']))[0]
-    except IndexError:
-        print('Unable to find selfhosted in this release')
-        return
+def get_all_npm_ruffle_versions():
+    versions_str = subprocess.check_output(['npm', 'view', '@ruffle-rs/ruffle', 'versions', '--json']).decode()
+    versions = json.loads(versions_str)
+    # filter out versions with date in them
+    versions = list(filter(lambda x: re.search(r'\d{4}\.\d{1,2}\.\d{1,2}', x), versions))
+    # extract date from versions
+    extract_date = lambda ver: re.search(r'\d{4}\.\d{1,2}\.\d{1,2}', ver).group(0)
+    versions_dict = {extract_date(version): version for version in versions}
+    return versions_dict
 
-    # generate temp dir for publish
-    temp_folder = tempfile.TemporaryDirectory()
-    temp_folder_path = temp_folder.name
-    os.chdir(temp_folder_path)
-
-    # write package.json to temp dir
-    with open(package_json_template) as f:
-        package_config = json.load(f)
-
-    version = generate_version(tag_name)
-    if not re.match(r'\d{4}\.\d{1,2}\.\d{1,2}', version):
-        print('version error')
-        return
-
-    package_config['version'] = version
-    
-    with open(os.path.join(temp_folder_path, 'package.json'), mode='w') as f:
-        f.write(json.dumps(package_config))
-
-    # downlod asset file and unzip it
-    zip_temp_folder = tempfile.TemporaryDirectory()
-    zip_temp_folder_path = zip_temp_folder.name
-    zip_file_path = os.path.join(zip_temp_folder_path, self_hosted_asset["name"])
-    urllib.request.urlretrieve(self_hosted_asset['browser_download_url'], zip_file_path)
-    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-        zip_ref.extractall(temp_folder_path)
-
-    # publish to npm
-    if dryrun:
-        subprocess.run(["npm", "publish", "--dry-run"])
-    else:
-        subprocess.run(["npm", "publish"])
-
-def get_all_npm_versions():
+def get_all_ruffle_mirror_versions():
     versions_str = subprocess.check_output(['npm', 'view', 'ruffle-mirror', 'versions', '--json']).decode()
     versions = json.loads(versions_str)
     return versions
 
-def generate_version(tag_name):
-    try:
-        version = tag_name.strip('nightly-').replace('-', '.')
-        version = '.'.join(map(lambda x: str(int(x)),version.split('.')))
-        assert re.match(r'\d{4}\.\d{1,2}\.\d{1,2}', version)
-        return version
-    except Exception as e:
-        print(f'Failed to convert {tag_name}\n{e}')
-        return tag_name
+def publish_release(ruffle_version, version_to_publish):
+    # generate temp dir for publish
+    temp_folder = tempfile.TemporaryDirectory()
+    temp_folder_path = temp_folder.name
 
+    # download ruffle dist
+    dist_url = subprocess.check_output(['npm', 'view', f'@ruffle-rs/ruffle@{ruffle_version}', 'dist.tarball']).decode()
+    print(f'Downloading ruffle-{ruffle_version}: {dist_url}')
+    dist_temp_folder = tempfile.TemporaryDirectory()
+    urllib.request.urlretrieve(dist_url, os.path.join(dist_temp_folder.name, 'ruffle.tar.gz'))
+
+    # untar ruffle dist
+    with tarfile.open(os.path.join(dist_temp_folder.name, 'ruffle.tar.gz'), 'r:gz') as tar:
+        tar.extractall(temp_folder_path)
+
+    # write package.json to temp dir
+    with open(PACKAGE_JSON_TEMPLATE) as f:
+        package_config = json.load(f)
+
+    package_config['version'] = version_to_publish
+    with open(os.path.join(temp_folder_path, 'package', 'package.json'), mode='w') as f:
+        json.dump(package_config, f, indent=2)
+
+    # publish to npm
+    os.chdir(os.path.join(temp_folder_path, 'package'))
+    subprocess.run(["npm", "publish", "--dry-run"])
+    os.chdir(ROOT_PATH)
+
+def main():
+    # get versions to publish
+    ruffle_versions = get_all_npm_ruffle_versions()
+    ruffle_mirror_versions = get_all_ruffle_mirror_versions()
+    versions_to_publish = list(set(ruffle_versions.keys()) - set(ruffle_mirror_versions))
+    versions_to_publish.sort(key=lambda x: list(ruffle_versions.keys()).index(x))
+    print(f'Versions to publish: {versions_to_publish}')
+    for version in versions_to_publish:
+        print(f'Publishing {version}')
+        publish_release(ruffle_versions[version], version)
 
 if __name__ == '__main__':
-    contents = urllib.request.urlopen("https://api.github.com/repos/ruffle-rs/ruffle/releases").read()
-    releases = json.loads(contents)
-
-    # only publish not published versions
-    published_versions = get_all_npm_versions()
-    releases_not_published = list(filter(lambda release: generate_version(release['tag_name']) not in published_versions, releases))
-
-    releases_not_published.sort(key=lambda release: generate_version(release['tag_name']))
-
-    print(f'Found {len(releases_not_published)} releases not published:')
-    print(list(map(lambda x: x['tag_name'], releases_not_published)))
-
-    for release in releases_not_published:
-        publish_release(release, dryrun=False)
+    main()
